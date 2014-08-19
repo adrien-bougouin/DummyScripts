@@ -110,25 +110,25 @@ def shift_subtitles(srt, time_shift):
 ## MAIN
 
 def main(argv):
-  time_shift = argv[1]
-  encoding = argv[2]
-  input_filepath = argv[3]
-  output_filepath = argv[4]
-  #-----------------------------------------------------------------------------
-  input_file = codecs.open(input_filepath, "r", encoding)
-  output_file = codecs.open(output_filepath, "w", encoding)
-  #-----------------------------------------------------------------------------
-  srt = parse_srt_file(input_file)
-  shifted_srt = shift_subtitles(srt, time_shift)
-
-  write_srt_file(shifted_srt, output_file)
-
-  input_file.close()
-  output_file.close()
+  if len(argv) != 5:
+    print "Usage:\n  %s <(-)hh:(-)mm:(-)ss,(-)mmm> <encoding> <input.srt> <output.srt>"%(argv[0])
+  else:
+    time_shift = argv[1]
+    encoding = argv[2]
+    input_filepath = argv[3]
+    output_filepath = argv[4]
+    #-----------------------------------------------------------------------------
+    input_file = codecs.open(input_filepath, "r", encoding)
+    output_file = codecs.open(output_filepath, "w", encoding)
+    #-----------------------------------------------------------------------------
+    srt = parse_srt_file(input_file)
+    shifted_srt = shift_subtitles(srt, time_shift)
+  
+    write_srt_file(shifted_srt, output_file)
+  
+    input_file.close()
+    output_file.close()
 
 if __name__ == "__main__":
-  if len(argv) == 5:
-    main(argv)
-  else:
-    print "Usage:\n  %s <(-)hh:(-)mm:(-)ss,(-)mmm> <encoding> <input.srt> <output.srt>"%(argv[0])
+  main(argv)
 
