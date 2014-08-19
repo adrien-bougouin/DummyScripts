@@ -130,5 +130,5 @@ if __name__ == "__main__":
   if len(argv) == 5:
     main(argv)
   else:
-    print "Usage:\n  %s <(+|-)hh:(+|-)mm:(+|-)ss,(+|-)mmm> <encoding> <input.srt> <output.srt>"%(argv[0])
+    print "Usage:\n  %s <(-)hh:(-)mm:(-)ss,(-)mmm> <encoding> <input.srt> <output.srt>"%(argv[0])
 
