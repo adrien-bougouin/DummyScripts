@@ -153,6 +153,7 @@ def main(argv):
   if len(argv) < 4:
     arg_parser.print_help()
   else:
+    # accepts positional arguments starting with '-'
     arguments = arg_parser.parse_args(args=argv[1:-3] + ["--"] + argv[-3:])
   
     encoding = arguments.encoding
