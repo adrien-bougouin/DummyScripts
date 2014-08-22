@@ -98,16 +98,21 @@ def time_shifting(time, time_shift):
 ################################################################################
 ## SRT SHIFTING
 
-def shift_subtitles(srt, time_shift):
+def shift_subtitles(srt, time_shift, starting_time, ending_time):
   shifted_srt = []
 
   for number, start_time, end_time, text_lines in srt:
-    start_time = time_shifting(start_time, time_shift)
-    end_time = time_shifting(end_time, time_shift)
+    shifted_start_time = start_time
+    shifted_end_time = end_time
 
+    if time_string_to_float(start_time) >= time_string_to_float(starting_time) \
+       and time_string_to_float(start_time) < time_string_to_float(ending_time):
+      shifted_start_time = time_shifting(start_time, time_shift)
+      shifted_end_time = time_shifting(end_time, time_shift)
+  
     shifted_srt.append((number,
-                        start_time,
-                        end_time,
+                        shifted_start_time,
+                        shifted_end_time,
                         text_lines))
 
   return shifted_srt
@@ -116,13 +121,8 @@ def shift_subtitles(srt, time_shift):
 ## MAIN
 
 def main(argv):
-  positional_arguments = ["(+|-)<time_shift>", "<input>", "<output>"]
-  arg_parser = argparse.ArgumentParser(description="Shifts the subtitle time frames of %s with %s and write the result in %s."%(
-                                                     positional_arguments[0],
-                                                     positional_arguments[1],
-                                                     positional_arguments[2],
-                                                   ),
-                                       usage="Usage: %s [options] %s %s %s"%(
+  positional_arguments = ["<time_shift>", "<input>", "<output>"]
+  arg_parser = argparse.ArgumentParser(usage="%s [options] %s %s %s"%(
                                                argv[0],
                                                positional_arguments[0],
                                                positional_arguments[1],
@@ -133,22 +133,32 @@ def main(argv):
                           "--encoding",
                           dest="encoding",
                           default="utf-8",
-                          help="The file encoding of input and output files.")
+                          help="encoding of input and output files")
+  arg_parser.add_argument("-f",
+                          "--from",
+                          dest="starting_time",
+                          default="00:00:00,000",
+                          help="approximated time from which the shifting must start")
+  arg_parser.add_argument("-u",
+                          "--until",
+                          dest="ending_time",
+                          default="99:99:99,999",
+                          help="approximated (non-included) time until which the shifting must be done")
   arg_parser.add_argument("time_shift",
                           default="-00:00:00,000",
-                          help="The value to shift time frames.")
-  arg_parser.add_argument("input_file",
-                          help="The file containing the original subtitle time frames.")
-  arg_parser.add_argument("output_file",
-                          help="The file containing the modified subtitle time frames.")
+                          help="format=(-)hh:mm:ss,mmm")
+  arg_parser.add_argument("input_file")
+  arg_parser.add_argument("output_file")
 
   if len(argv) < 4:
-    arg_parser.print_help
+    arg_parser.print_help()
   else:
     arguments = arg_parser.parse_args(args=argv[1:-3] + ["--"] + argv[-3:])
   
-    time_shift = arguments.time_shift
     encoding = arguments.encoding
+    starting_time = arguments.starting_time
+    ending_time = arguments.ending_time
+    time_shift = arguments.time_shift
     input_filepath = arguments.input_file
     output_filepath = arguments.output_file
     #---------------------------------------------------------------------------
@@ -156,7 +166,7 @@ def main(argv):
     output_file = codecs.open(output_filepath, "w", encoding)
     #---------------------------------------------------------------------------
     srt = parse_srt_file(input_file)
-    shifted_srt = shift_subtitles(srt, time_shift)
+    shifted_srt = shift_subtitles(srt, time_shift, starting_time, ending_time)
     
     write_srt_file(shifted_srt, output_file)
     
